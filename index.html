@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>맑음 — 대기질 정보</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- 배경 애니메이션 -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">◎</span>
+        <span class="logo-text">맑음</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-btn active" data-section="realtime">실시간</button>
+        <button class="nav-btn" data-section="forecast">예보</button>
+        <button class="nav-btn" data-section="map">지역별</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <!-- 히어로 섹션 -->
+    <section class="hero">
+      <div class="hero-label">대기질 현황</div>
+      <h1 class="hero-title">지금 당신 주변의<br /><em>공기</em>는 어떤가요?</h1>
+
+      <!-- 검색 바 -->
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            id="stationInput"
+            class="search-input"
+            placeholder="측정소 이름 입력 (예: 종로구, 해운대구 ...)"
+            autocomplete="off"
+          />
+          <button class="search-btn" id="searchBtn">조회</button>
+        </div>
+        <div class="search-hint">※ 전국 측정소명으로 검색하세요 (읍·면·동 단위)</div>
+      </div>
+    </section>
+
+    <!-- 실시간 섹션 -->
+    <section class="section" id="section-realtime">
+
+      <!-- 로딩 -->
+      <div class="loading-wrap" id="loading" style="display:none;">
+        <div class="loading-ring"></div>
+        <p>데이터 불러오는 중…</p>
+      </div>
+
+      <!-- 에러 -->
+      <div class="error-wrap" id="errorMsg" style="display:none;">
+        <span class="error-icon">⚠</span>
+        <p id="errorText">오류가 발생했습니다.</p>
+      </div>
+
+      <!-- 결과 카드 -->
+      <div class="result-wrap" id="resultWrap" style="display:none;">
+
+        <!-- 메인 AQI 카드 -->
+        <div class="aqi-card" id="aqiCard">
+          <div class="aqi-card-header">
+            <div>
+              <div class="aqi-station" id="aqiStation">—</div>
+              <div class="aqi-time" id="aqiTime">—</div>
+            </div>
+            <div class="aqi-badge" id="aqiBadge">—</div>
+          </div>
+          <div class="aqi-value-wrap">
+            <div class="aqi-value" id="aqiValue">—</div>
+            <div class="aqi-label">통합대기환경지수 (CAI)</div>
+          </div>
+          <div class="aqi-bar-wrap">
+            <div class="aqi-bar">
+              <div class="aqi-bar-fill" id="aqiBarFill"></div>
+              <div class="aqi-bar-thumb" id="aqiBarThumb"></div>
+            </div>
+            <div class="aqi-bar-labels">
+              <span>좋음</span><span>보통</span><span>나쁨</span><span>매우나쁨</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 오염물질 그리드 -->
+        <div class="pollutants-title">오염물질 현황</div>
+        <div class="pollutants-grid" id="pollutantsGrid">
+          <!-- JS로 채워짐 -->
+        </div>
+
+        <!-- 주의사항 -->
+        <div class="advice-card" id="adviceCard">
+          <div class="advice-icon" id="adviceIcon">💨</div>
+          <div class="advice-content">
+            <div class="advice-title" id="adviceTitle">오늘의 대기 조언</div>
+            <div class="advice-text" id="adviceText">데이터를 조회해주세요.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 예보 섹션 -->
+    <section class="section hidden" id="section-forecast">
+      <div class="forecast-header">
+        <h2 class="section-title">대기질 예보</h2>
+        <div class="forecast-region-wrap">
+          <label>지역 선택</label>
+          <select id="regionSelect" class="region-select">
+            <option value="서울">서울</option>
+            <option value="경기">경기</option>
+            <option value="인천">인천</option>
+            <option value="강원">강원</option>
+            <option value="충북">충북</option>
+            <option value="충남">충남</option>
+            <option value="대전">대전</option>
+            <option value="경북">경북</option>
+            <option value="경남">경남</option>
+            <option value="대구">대구</option>
+            <option value="전북" selected>전북</option>
+            <option value="전남">전남</option>
+            <option value="광주">광주</option>
+            <option value="울산">울산</option>
+            <option value="부산">부산</option>
+            <option value="제주">제주</option>
+          </select>
+          <button class="search-btn" id="forecastBtn">조회</button>
+        </div>
+      </div>
+      <div class="forecast-loading" id="forecastLoading" style="display:none;">
+        <div class="loading-ring"></div>
+      </div>
+      <div class="forecast-list" id="forecastList"></div>
+    </section>
+
+    <!-- 지역별 섹션 -->
+    <section class="section hidden" id="section-map">
+      <div class="map-header">
+        <h2 class="section-title">시도별 실시간 현황</h2>
+        <div class="map-region-wrap">
+          <select id="sidoSelect" class="region-select">
+            <option value="서울">서울</option>
+            <option value="경기">경기</option>
+            <option value="인천">인천</option>
+            <option value="강원">강원</option>
+            <option value="충북">충북</option>
+            <option value="충남">충남</option>
+            <option value="대전">대전</option>
+            <option value="경북">경북</option>
+            <option value="경남">경남</option>
+            <option value="대구">대구</option>
+            <option value="전북" selected>전북</option>
+            <option value="전남">전남</option>
+            <option value="광주">광주</option>
+            <option value="울산">울산</option>
+            <option value="부산">부산</option>
+            <option value="세종">세종</option>
+            <option value="제주">제주</option>
+          </select>
+          <button class="search-btn" id="sidoBtn">조회</button>
+        </div>
+      </div>
+      <div class="sido-loading" id="sidoLoading" style="display:none;">
+        <div class="loading-ring"></div>
+      </div>
+      <div class="sido-table-wrap">
+        <table class="sido-table" id="sidoTable" style="display:none;">
+          <thead>
+            <tr>
+              <th>측정소</th>
+              <th>PM10<small>㎍/㎥</small></th>
+              <th>PM2.5<small>㎍/㎥</small></th>
+              <th>O₃<small>ppm</small></th>
+              <th>NO₂<small>ppm</small></th>
+              <th>CO<small>ppm</small></th>
+              <th>SO₂<small>ppm</small></th>
+              <th>CAI</th>
+            </tr>
+          </thead>
+          <tbody id="sidoTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <p>데이터 제공: <strong>한국환경공단 에어코리아</strong> OpenAPI</p>
+    <p class="footer-sub">전북과학고 · 정보 수행평가 프로젝트</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
